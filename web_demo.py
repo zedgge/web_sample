@@ -1,13 +1,8 @@
 """
-QuantEdge Pro - Professional Trading Platform Demo
-Interactive Paper Trading Demonstration
+QuantEdge Pro - Professional Trading Platform
+Institutional-Grade Paper Trading Demonstration
 
-Features:
-- Professional trading terminal UI
-- Real-time data updates (smooth, no page refresh)
-- Advanced performance metrics & risk analytics
-- Portfolio heatmap visualization
-- Strategy comparison & leaderboard
+Real-time algorithmic trading simulation with advanced analytics
 """
 
 import streamlit as st
@@ -21,241 +16,286 @@ import time
 
 # Page config
 st.set_page_config(
-    page_title="QuantEdge Pro - Trading Platform",
-    page_icon="▲",
+    page_title="QuantEdge Pro",
+    page_icon="■",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Professional Bloomberg-style CSS
+# Professional Terminal CSS - NO EMOJIS, NO CARTOON STUFF
 st.markdown("""
 <style>
-    /* Hide Streamlit branding */
+    /* Hide all Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     .stDeployButton {display:none;}
+    header {visibility: hidden;}
 
-    /* Professional color palette - Bloomberg inspired */
+    /* Professional terminal colors */
     :root {
-        --primary: #FF6600;
-        --secondary: #1E3A8A;
-        --success: #16A34A;
-        --danger: #DC2626;
-        --warning: #CA8A04;
-        --dark: #0F172A;
-        --light: #F8FAFC;
-        --border: #E2E8F0;
-        --text-primary: #1E293B;
-        --text-secondary: #64748B;
+        --terminal-green: #00FF41;
+        --terminal-red: #FF3B30;
+        --terminal-orange: #FF9500;
+        --terminal-blue: #007AFF;
+        --bg-dark: #0A0E27;
+        --bg-darker: #050814;
+        --text-primary: #E8EAED;
+        --text-secondary: #9AA0A6;
+        --border-color: #202940;
+        --success: #00C853;
+        --danger: #FF1744;
     }
 
-    /* Clean transitions */
+    /* Main app background */
+    .stApp {
+        background: var(--bg-dark);
+        color: var(--text-primary);
+    }
+
+    /* Remove ALL animations */
     * {
-        transition: all 0.2s ease;
+        transition: none !important;
+        animation: none !important;
     }
 
-    /* Main header - professional, no emojis */
+    /* Header - clean, professional */
     .main-header {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         font-weight: 700;
-        color: var(--primary);
-        text-align: center;
-        margin-bottom: 0.5rem;
-        letter-spacing: -0.5px;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    /* Subtitle */
-    .subtitle {
-        text-align: center;
-        font-size: 1rem;
-        color: var(--text-secondary);
-        margin-bottom: 2rem;
-        font-weight: 500;
-        letter-spacing: 0.3px;
+        color: var(--terminal-orange);
+        text-align: left;
+        margin-bottom: 0.3rem;
+        letter-spacing: 2px;
+        font-family: 'Courier New', monospace;
         text-transform: uppercase;
+        border-left: 4px solid var(--terminal-orange);
+        padding-left: 16px;
     }
 
-    /* Live indicator - minimal, professional */
-    .live-indicator {
+    .subtitle {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        font-family: 'Courier New', monospace;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding-left: 20px;
+    }
+
+    /* Live indicator - simple dot */
+    .live-status {
         display: inline-block;
-        width: 10px;
-        height: 10px;
-        background: var(--success);
-        border-radius: 50%;
+        width: 8px;
+        height: 8px;
+        background: var(--terminal-green);
         margin-right: 8px;
-        box-shadow: 0 0 8px var(--success);
     }
 
-    /* Status badge - Bloomberg style */
+    /* Status badges - terminal style */
     .status-badge {
         display: inline-block;
-        padding: 6px 16px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.8rem;
-        letter-spacing: 0.8px;
+        padding: 4px 12px;
+        background: transparent;
+        border: 1px solid var(--border-color);
+        font-family: 'Courier New', monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1px;
         text-transform: uppercase;
-        border: 2px solid;
-        font-family: 'Roboto Mono', monospace;
     }
 
     .status-running {
-        background: var(--success);
-        color: white;
-        border-color: var(--success);
+        border-color: var(--terminal-green);
+        color: var(--terminal-green);
     }
 
     .status-stopped {
-        background: transparent;
+        border-color: var(--text-secondary);
         color: var(--text-secondary);
-        border-color: var(--border);
     }
 
-    /* Feature pill - professional */
-    .feature-pill {
-        display: inline-block;
-        background: var(--light);
-        color: var(--text-primary);
-        padding: 8px 16px;
-        border-radius: 4px;
-        font-size: 0.85rem;
-        margin: 4px;
-        font-weight: 600;
-        border: 1px solid var(--border);
-    }
-
-    /* Button styling - Bloomberg inspired */
+    /* Buttons - terminal style, NO GRADIENTS */
     .stButton > button {
-        background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%);
-        border: 1px solid var(--border);
-        border-radius: 4px;
+        background: var(--bg-darker);
+        border: 1px solid var(--border-color);
         color: var(--text-primary);
-        font-weight: 600;
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
         text-transform: uppercase;
-        padding: 10px 24px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        padding: 8px 20px;
     }
 
     .stButton > button:hover {
-        background: linear-gradient(180deg, #F8FAFC 0%, #E2E8F0 100%);
-        border-color: var(--primary);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background: var(--border-color);
+        border-color: var(--terminal-orange);
     }
 
     .stButton > button[kind="primary"] {
-        background: linear-gradient(180deg, var(--success) 0%, #15803D 100%);
-        border-color: var(--success);
-        color: white;
+        background: var(--terminal-green);
+        border-color: var(--terminal-green);
+        color: var(--bg-dark);
     }
 
     .stButton > button[kind="primary"]:hover {
-        background: linear-gradient(180deg, #15803D 0%, #166534 100%);
-        box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
+        background: #00FF41;
+        border-color: #00FF41;
     }
 
-    /* Data tables - terminal style */
-    .dataframe {
-        font-family: 'Roboto Mono', monospace;
-        font-size: 0.85rem;
+    /* Metrics - terminal display */
+    [data-testid="stMetricValue"] {
+        font-family: 'Courier New', monospace;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    [data-testid="stMetricLabel"] {
+        font-family: 'Courier New', monospace;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-secondary);
     }
 
     /* Section headers */
     h3 {
-        color: var(--text-primary);
+        color: var(--terminal-orange);
+        font-family: 'Courier New', monospace;
         font-weight: 700;
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-        letter-spacing: -0.3px;
-        border-bottom: 2px solid var(--primary);
-        padding-bottom: 8px;
-    }
-
-    /* Metrics styling */
-    [data-testid="stMetricValue"] {
-        font-family: 'Roboto Mono', monospace;
-        font-size: 1.8rem;
-        font-weight: 700;
-    }
-
-    [data-testid="stMetricLabel"] {
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: 1rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-secondary);
+        letter-spacing: 1.5px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 8px;
+        margin-top: 1rem;
     }
 
-    /* Sidebar styling */
+    /* Sidebar */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
-        border-right: 1px solid var(--border);
+        background: var(--bg-darker);
+        border-right: 1px solid var(--border-color);
     }
 
-    /* Remove emoji-like elements */
-    .element-container {
-        animation: none !important;
+    [data-testid="stSidebar"] h2 {
+        color: var(--terminal-orange);
+        font-family: 'Courier New', monospace;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
-    /* Professional metric cards */
-    .metric-container {
-        background: white;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 16px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    [data-testid="stSidebar"] h3 {
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        border: none;
     }
 
-    .metric-container:hover {
-        border-color: var(--primary);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    /* Input fields */
+    input, select, .stSelectbox, .stMultiSelect {
+        background: var(--bg-darker) !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-primary) !important;
+        font-family: 'Courier New', monospace !important;
     }
 
-    /* Chart containers */
-    .chart-container {
-        background: white;
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 16px;
-        margin: 12px 0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    /* Data tables - terminal style */
+    .dataframe {
+        background: var(--bg-darker);
+        border: 1px solid var(--border-color);
+        font-family: 'Courier New', monospace;
+        font-size: 0.8rem;
+        color: var(--text-primary);
     }
 
-    /* Professional table styling */
     table {
-        border-collapse: collapse;
-        border: 1px solid var(--border);
+        background: var(--bg-darker);
+        border: 1px solid var(--border-color);
     }
 
     th {
-        background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+        background: var(--bg-dark);
+        color: var(--terminal-orange);
+        font-family: 'Courier New', monospace;
         font-weight: 700;
         text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-        padding: 12px;
-        border-bottom: 2px solid var(--border);
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        padding: 10px;
+        border-bottom: 2px solid var(--border-color);
     }
 
     td {
-        padding: 10px 12px;
-        border-bottom: 1px solid var(--border);
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
     }
 
-    /* Remove all gradients and flashy colors */
-    .stApp {
-        background: #FFFFFF;
+    /* Stock performance card */
+    .stock-card {
+        background: var(--bg-darker);
+        border: 1px solid var(--border-color);
+        border-left: 3px solid var(--terminal-green);
+        padding: 10px;
+        margin: 6px 0;
+        font-family: 'Courier New', monospace;
     }
 
-    /* Professional expander */
+    .stock-card.negative {
+        border-left-color: var(--terminal-red);
+    }
+
+    .stock-ticker {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: 1px;
+    }
+
+    .stock-pnl {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
+    .stock-pnl.positive {
+        color: var(--terminal-green);
+    }
+
+    .stock-pnl.negative {
+        color: var(--terminal-red);
+    }
+
+    /* Info boxes */
+    .stAlert {
+        background: var(--bg-darker);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+    /* Expander */
     .streamlit-expanderHeader {
-        background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.9rem;
+        background: var(--bg-darker);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
+
+    /* Remove all rounded corners */
+    * {
+        border-radius: 0 !important;
+    }
+
+    /* Horizontal rule */
+    hr {
+        border: none;
+        border-top: 1px solid var(--border-color);
+        margin: 1.5rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -288,10 +328,12 @@ if 'trade_count' not in st.session_state:
     st.session_state.trade_count = 0
 if 'last_update' not in st.session_state:
     st.session_state.last_update = datetime.now()
+if 'stock_performance' not in st.session_state:
+    st.session_state.stock_performance = {}
 
 
 def generate_realistic_trade():
-    """Generate realistic trade with better data"""
+    """Generate realistic trade"""
     np.random.seed(int(time.time() * 1000) % 2**32)
 
     symbols = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'NVDA', 'AMZN', 'META', 'NFLX', 'ORCL', 'AMD']
@@ -303,7 +345,6 @@ def generate_realistic_trade():
     quantity = np.random.randint(5, 150)
     price = np.random.uniform(80, 900)
 
-    # More realistic P&L based on strategy
     strategy_multipliers = {
         'Momentum': 1.2,
         'RSI': 1.0,
@@ -338,6 +379,24 @@ def generate_realistic_trade():
     if is_win:
         perf['wins'] += 1
 
+    # Update stock performance tracking
+    if symbol not in st.session_state.stock_performance:
+        st.session_state.stock_performance[symbol] = {
+            'total_pnl': 0,
+            'trade_count': 0,
+            'last_pnl': 0,
+            'position': 0
+        }
+
+    st.session_state.stock_performance[symbol]['total_pnl'] += pnl
+    st.session_state.stock_performance[symbol]['trade_count'] += 1
+    st.session_state.stock_performance[symbol]['last_pnl'] = pnl
+
+    if side == 'BUY':
+        st.session_state.stock_performance[symbol]['position'] += quantity
+    else:
+        st.session_state.stock_performance[symbol]['position'] -= quantity
+
     # Update capital
     st.session_state.current_capital += pnl
     st.session_state.max_capital = max(st.session_state.max_capital, st.session_state.current_capital)
@@ -357,19 +416,22 @@ def generate_realistic_trade():
             new_avg = (current_qty * current_avg + quantity * price) / new_qty
             st.session_state.positions[symbol]['quantity'] = new_qty
             st.session_state.positions[symbol]['avg_price'] = new_avg
+            st.session_state.positions[symbol]['last_update'] = datetime.now()
         else:
             st.session_state.positions[symbol] = {
                 'quantity': quantity,
                 'avg_price': price,
-                'current_price': price * (1 + np.random.normal(0, 0.015))
+                'current_price': price * (1 + np.random.normal(0, 0.015)),
+                'last_update': datetime.now()
             }
     else:
         if symbol in st.session_state.positions:
             st.session_state.positions[symbol]['quantity'] -= quantity
+            st.session_state.positions[symbol]['last_update'] = datetime.now()
             if st.session_state.positions[symbol]['quantity'] <= 0:
                 del st.session_state.positions[symbol]
 
-    # Update position prices (simulate market movement)
+    # Update position prices
     for sym in st.session_state.positions:
         price_change = np.random.normal(0, 0.008)
         st.session_state.positions[sym]['current_price'] *= (1 + price_change)
@@ -382,7 +444,7 @@ def generate_realistic_trade():
 
 
 def calculate_advanced_metrics():
-    """Calculate comprehensive performance metrics"""
+    """Calculate performance metrics"""
     if len(st.session_state.trades) == 0:
         return {
             'total_return': 0,
@@ -397,24 +459,20 @@ def calculate_advanced_metrics():
             'avg_trade': 0,
             'best_trade': 0,
             'worst_trade': 0,
-            'consecutive_wins': 0,
-            'consecutive_losses': 0
         }
 
     trades_df = pd.DataFrame(st.session_state.trades)
 
-    # Basic metrics
     total_return_abs = st.session_state.current_capital - st.session_state.start_capital
     total_return = (total_return_abs / st.session_state.start_capital) * 100
 
-    # Sharpe ratio
+    # Sharpe & Sortino
     if len(st.session_state.daily_returns) > 1:
         returns_array = np.array(st.session_state.daily_returns)
         returns_mean = np.mean(returns_array)
         returns_std = np.std(returns_array)
         sharpe = (returns_mean / returns_std * np.sqrt(252)) if returns_std > 0 else 0
 
-        # Sortino ratio (only downside deviation)
         negative_returns = returns_array[returns_array < 0]
         downside_std = np.std(negative_returns) if len(negative_returns) > 0 else 0.0001
         sortino = (returns_mean / downside_std * np.sqrt(252)) if downside_std > 0 else 0
@@ -431,38 +489,19 @@ def calculate_advanced_metrics():
     else:
         max_dd = 0
 
-    # Win rate
     wins = trades_df['is_win'].sum()
     win_rate = (wins / len(trades_df)) * 100 if len(trades_df) > 0 else 0
 
-    # Profit factor
     total_wins = trades_df[trades_df['pnl'] > 0]['pnl'].sum()
     total_losses = abs(trades_df[trades_df['pnl'] < 0]['pnl'].sum())
     profit_factor = total_wins / total_losses if total_losses > 0 else float('inf')
 
-    # Average metrics
     avg_win = trades_df[trades_df['pnl'] > 0]['pnl'].mean() if len(trades_df[trades_df['pnl'] > 0]) > 0 else 0
     avg_loss = trades_df[trades_df['pnl'] < 0]['pnl'].mean() if len(trades_df[trades_df['pnl'] < 0]) > 0 else 0
     avg_trade = trades_df['pnl'].mean()
 
     best_trade = trades_df['pnl'].max()
     worst_trade = trades_df['pnl'].min()
-
-    # Consecutive wins/losses
-    consecutive_wins = 0
-    consecutive_losses = 0
-    current_streak_wins = 0
-    current_streak_losses = 0
-
-    for win in trades_df['is_win']:
-        if win:
-            current_streak_wins += 1
-            current_streak_losses = 0
-            consecutive_wins = max(consecutive_wins, current_streak_wins)
-        else:
-            current_streak_losses += 1
-            current_streak_wins = 0
-            consecutive_losses = max(consecutive_losses, current_streak_losses)
 
     return {
         'total_return': total_return,
@@ -477,31 +516,30 @@ def calculate_advanced_metrics():
         'avg_trade': avg_trade,
         'best_trade': best_trade,
         'worst_trade': worst_trade,
-        'consecutive_wins': consecutive_wins,
-        'consecutive_losses': consecutive_losses
     }
 
 
 # Header
 st.markdown('<div class="main-header">QUANTEDGE PRO</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Algorithmic Trading Platform</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">ALGORITHMIC TRADING PLATFORM</div>', unsafe_allow_html=True)
 
-# Live status indicator
+# Live status
 if st.session_state.bot_running:
     st.markdown('''
-    <div style="text-align: center; margin-bottom: 2rem;">
-        <span class="live-indicator"></span>
-        <span style="font-weight: 600; color: #16A34A; font-size: 0.9rem; letter-spacing: 1px; font-family: 'Roboto Mono', monospace;">LIVE TRADING</span>
+    <div style="margin-bottom: 1.5rem; font-family: 'Courier New', monospace; font-size: 0.85rem;">
+        <span class="live-status"></span>
+        <span style="color: #00FF41; font-weight: 700; letter-spacing: 1px;">LIVE TRADING</span>
+        <span style="color: #9AA0A6; margin-left: 20px;">LAST UPDATE: {}</span>
     </div>
-    ''', unsafe_allow_html=True)
+    '''.format(st.session_state.last_update.strftime('%H:%M:%S')), unsafe_allow_html=True)
 
 st.markdown("---")
 
 # Sidebar
 with st.sidebar:
-    st.header("Configuration")
+    st.header("CONFIGURATION")
 
-    st.subheader("Capital")
+    st.subheader("CAPITAL")
     initial_capital = st.number_input(
         "Initial Capital ($)",
         min_value=10000,
@@ -510,37 +548,36 @@ with st.sidebar:
         step=10000
     )
 
-    st.subheader("Strategies")
+    st.subheader("STRATEGIES")
     selected_strategies = st.multiselect(
         "Active Strategies",
         ["Momentum", "RSI", "MA Crossover", "Mean Reversion"],
         default=["Momentum", "RSI", "MA Crossover"]
     )
 
-    st.subheader("Assets")
+    st.subheader("ASSETS")
     assets = st.multiselect(
         "Trading Universe",
         ["AAPL", "GOOGL", "MSFT", "TSLA", "NVDA", "AMZN", "META", "NFLX", "ORCL", "AMD", "SPY", "QQQ"],
         default=["AAPL", "GOOGL", "MSFT", "NVDA", "TSLA"]
     )
 
-    st.subheader("Risk Management")
+    st.subheader("RISK PARAMETERS")
     max_position = st.slider("Max Position Size (%)", 5, 50, 20, 5)
     stop_loss = st.slider("Stop Loss (%)", 1, 25, 10, 1)
-    take_profit = st.slider("Take Profit (%)", 5, 100, 25, 5)
 
-    st.subheader("Trading Speed")
+    st.subheader("EXECUTION SPEED")
     speed = st.select_slider(
         "Update Frequency",
-        options=["Slow (5s)", "Normal (3s)", "Fast (1s)", "Maximum (0.5s)"],
-        value="Normal (3s)"
+        options=["SLOW (5s)", "NORMAL (3s)", "FAST (1s)", "MAXIMUM (0.5s)"],
+        value="NORMAL (3s)"
     )
 
     speed_map = {
-        "Slow (5s)": 5,
-        "Normal (3s)": 3,
-        "Fast (1s)": 1,
-        "Maximum (0.5s)": 0.5
+        "SLOW (5s)": 5,
+        "NORMAL (3s)": 3,
+        "FAST (1s)": 1,
+        "MAXIMUM (0.5s)": 0.5
     }
     trade_interval = speed_map[speed]
 
@@ -555,13 +592,11 @@ with st.sidebar:
             st.session_state.current_capital = initial_capital
             st.session_state.max_capital = initial_capital
             st.session_state.trades = []
-            st.session_state.equity_curve = [{
-                'timestamp': datetime.now(),
-                'equity': initial_capital
-            }]
+            st.session_state.equity_curve = [{'timestamp': datetime.now(), 'equity': initial_capital}]
             st.session_state.positions = {}
             st.session_state.trade_count = 0
             st.session_state.daily_returns = [0]
+            st.session_state.stock_performance = {}
             for strategy in st.session_state.strategy_performance:
                 st.session_state.strategy_performance[strategy] = {
                     'trades': 0, 'wins': 0, 'pnl': 0, 'returns': []
@@ -573,55 +608,57 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # Status display
+    # Status
     if st.session_state.bot_running:
         st.markdown('<div class="status-badge status-running">RUNNING</div>', unsafe_allow_html=True)
-        st.caption(f"Last update: {st.session_state.last_update.strftime('%H:%M:%S')}")
     else:
         st.markdown('<div class="status-badge status-stopped">STOPPED</div>', unsafe_allow_html=True)
 
-    # Quick stats in sidebar
     if len(st.session_state.trades) > 0:
         st.markdown("---")
-        st.markdown("### Quick Stats")
-        st.metric("Total Trades", st.session_state.trade_count)
-        st.metric("Open Positions", len(st.session_state.positions))
+        st.markdown("### STATISTICS")
+        st.metric("TOTAL TRADES", st.session_state.trade_count)
+        st.metric("OPEN POSITIONS", len(st.session_state.positions))
 
 # Main content
 if not st.session_state.bot_running and len(st.session_state.trades) == 0:
     # Welcome screen
-    st.info("Configure your trading bot in the sidebar and click START to begin")
+    st.info("Configure trading parameters in sidebar and click START to begin simulation")
 
-    # Feature showcase
-    col1, col2, col3, col4 = st.columns(4)
+    # Features
+    col1, col2, col3 = st.columns(3)
 
-    features = [
-        ("Automated Trading", "Multi-strategy execution\nReal-time decisions\n24/7 operation"),
-        ("Advanced Analytics", "Sharpe & Sortino ratios\nDrawdown monitoring\nWin rate tracking"),
-        ("Risk Management", "Position sizing\nStop-loss protection\nDiversification"),
-        ("Multiple Strategies", "Momentum\nMean reversion\nTechnical indicators\nML-based")
-    ]
+    with col1:
+        st.markdown("### AUTOMATED EXECUTION")
+        st.markdown("- Multi-strategy aggregation")
+        st.markdown("- Real-time decision engine")
+        st.markdown("- 24/7 operation capability")
 
-    for col, (title, desc) in zip([col1, col2, col3, col4], features):
-        with col:
-            st.markdown(f"### {title}")
-            for line in desc.split('\n'):
-                st.markdown(f"- {line}")
+    with col2:
+        st.markdown("### RISK ANALYTICS")
+        st.markdown("- Sharpe & Sortino ratios")
+        st.markdown("- Drawdown monitoring")
+        st.markdown("- Position-level risk tracking")
+
+    with col3:
+        st.markdown("### PERFORMANCE TRACKING")
+        st.markdown("- Stock-level P&L")
+        st.markdown("- Strategy comparison")
+        st.markdown("- Real-time equity curve")
 
     st.markdown("---")
 
     # Example chart
-    st.subheader("Multi-Strategy Performance Comparison")
+    st.subheader("STRATEGY PERFORMANCE COMPARISON")
 
     dates = pd.date_range(start='2024-01-01', end='2025-12-27', freq='D')
-
     fig = go.Figure()
 
     strategies_colors = {
-        'Momentum': '#FF6600',
-        'RSI': '#16A34A',
-        'MA Crossover': '#CA8A04',
-        'Mean Reversion': '#DC2626'
+        'Momentum': '#FF9500',
+        'RSI': '#00FF41',
+        'MA Crossover': '#007AFF',
+        'Mean Reversion': '#FF3B30'
     }
 
     for strategy, color in strategies_colors.items():
@@ -633,47 +670,38 @@ if not st.session_state.bot_running and len(st.session_state.trades) == 0:
             y=equity,
             mode='lines',
             name=strategy,
-            line=dict(width=2, color=color),
+            line=dict(width=1.5, color=color),
             hovertemplate='%{y:$,.0f}<extra></extra>'
         ))
 
     fig.update_layout(
-        xaxis_title="Date",
-        yaxis_title="Portfolio Value ($)",
+        xaxis_title="DATE",
+        yaxis_title="PORTFOLIO VALUE ($)",
         hovermode='x unified',
         height=500,
         showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1
-        ),
-        plot_bgcolor='#FFFFFF',
-        paper_bgcolor='#FFFFFF',
-        font=dict(family='Inter, sans-serif', size=12, color='#1E293B')
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        plot_bgcolor='#0A0E27',
+        paper_bgcolor='#0A0E27',
+        font=dict(family='Courier New, monospace', size=10, color='#E8EAED')
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
     # Sample metrics
-    st.subheader("Performance Metrics")
-
     m1, m2, m3, m4, m5, m6 = st.columns(6)
-
     with m1:
-        st.metric("Return", "+27.3%", "+27.3%")
+        st.metric("RETURN", "+27.3%")
     with m2:
-        st.metric("Sharpe", "2.18", "+0.68")
+        st.metric("SHARPE", "2.18")
     with m3:
-        st.metric("Sortino", "3.24", "+1.24")
+        st.metric("SORTINO", "3.24")
     with m4:
-        st.metric("Max DD", "-6.2%", "-6.2%")
+        st.metric("MAX DD", "-6.2%")
     with m5:
-        st.metric("Win Rate", "63.7%", "+13.7%")
+        st.metric("WIN RATE", "63.7%")
     with m6:
-        st.metric("Profit Factor", "2.89", "+1.89")
+        st.metric("PROFIT FACTOR", "2.89")
 
 else:
     # LIVE DASHBOARD
@@ -686,14 +714,14 @@ else:
     metrics = calculate_advanced_metrics()
 
     # Performance metrics
-    st.subheader("Performance Dashboard")
+    st.subheader("PERFORMANCE DASHBOARD")
 
     p1, p2, p3, p4, p5, p6 = st.columns(6)
 
     with p1:
         delta_color = "normal" if metrics['total_return'] >= 0 else "inverse"
         st.metric(
-            "Portfolio Value",
+            "PORTFOLIO VALUE",
             f"${st.session_state.current_capital:,.0f}",
             delta=f"{metrics['total_return']:+.2f}%",
             delta_color=delta_color
@@ -701,48 +729,31 @@ else:
 
     with p2:
         st.metric(
-            "Total Return",
+            "TOTAL RETURN",
             f"{metrics['total_return']:+.2f}%",
             delta=f"${metrics['total_return_abs']:+,.0f}",
             delta_color=delta_color
         )
 
     with p3:
-        st.metric(
-            "Sharpe Ratio",
-            f"{metrics['sharpe_ratio']:.2f}",
-            delta=f"{metrics['sharpe_ratio']:.2f}"
-        )
+        st.metric("SHARPE RATIO", f"{metrics['sharpe_ratio']:.2f}")
 
     with p4:
-        st.metric(
-            "Sortino Ratio",
-            f"{metrics['sortino_ratio']:.2f}",
-            delta=f"{metrics['sortino_ratio']:.2f}"
-        )
+        st.metric("SORTINO RATIO", f"{metrics['sortino_ratio']:.2f}")
 
     with p5:
-        st.metric(
-            "Max Drawdown",
-            f"{metrics['max_drawdown']:.2f}%",
-            delta=f"{metrics['max_drawdown']:.2f}%",
-            delta_color="inverse"
-        )
+        st.metric("MAX DRAWDOWN", f"{metrics['max_drawdown']:.2f}%", delta_color="inverse")
 
     with p6:
-        st.metric(
-            "Win Rate",
-            f"{metrics['win_rate']:.1f}%",
-            delta=f"{metrics['win_rate'] - 50:+.1f}%"
-        )
+        st.metric("WIN RATE", f"{metrics['win_rate']:.1f}%")
 
     st.markdown("---")
 
-    # Charts
-    chart_col1, chart_col2 = st.columns([2, 1])
+    # Main content area - 3 columns
+    main_col1, main_col2, main_col3 = st.columns([3, 2, 2])
 
-    with chart_col1:
-        st.subheader("Equity Curve")
+    with main_col1:
+        st.subheader("EQUITY CURVE")
 
         if len(st.session_state.equity_curve) > 0:
             equity_df = pd.DataFrame(st.session_state.equity_curve)
@@ -755,58 +766,53 @@ else:
                 mode='lines',
                 fill='tozeroy',
                 name='Portfolio Value',
-                line=dict(color='#FF6600', width=2),
-                fillcolor='rgba(255, 102, 0, 0.1)',
+                line=dict(color='#FF9500', width=2),
+                fillcolor='rgba(255, 149, 0, 0.1)',
                 hovertemplate='%{y:$,.0f}<extra></extra>'
             ))
 
             fig.add_hline(
                 y=st.session_state.start_capital,
                 line_dash="dash",
-                line_color="#64748B",
+                line_color="#9AA0A6",
                 line_width=1,
-                annotation_text="Start",
+                annotation_text="START",
                 annotation_position="right"
             )
 
             fig.add_hline(
                 y=st.session_state.max_capital,
                 line_dash="dot",
-                line_color="#16A34A",
+                line_color="#00FF41",
                 line_width=1,
                 annotation_text="ATH",
                 annotation_position="right"
             )
 
             fig.update_layout(
-                xaxis_title="Time",
-                yaxis_title="Value ($)",
+                xaxis_title="TIME",
+                yaxis_title="VALUE ($)",
                 hovermode='x unified',
-                height=450,
+                height=400,
                 showlegend=False,
-                plot_bgcolor='#FFFFFF',
-                paper_bgcolor='#FFFFFF',
-                font=dict(family='Roboto Mono, monospace', size=11),
+                plot_bgcolor='#0A0E27',
+                paper_bgcolor='#0A0E27',
+                font=dict(family='Courier New, monospace', size=9, color='#E8EAED'),
                 margin=dict(l=0, r=0, t=10, b=0)
             )
 
             st.plotly_chart(fig, use_container_width=True, key="equity_chart")
 
-    with chart_col2:
-        st.subheader("Strategy Leaderboard")
+    with main_col2:
+        st.subheader("STRATEGY P&L")
 
         strategy_data = []
         for strategy, perf in st.session_state.strategy_performance.items():
             if perf['trades'] > 0:
-                win_rate = (perf['wins'] / perf['trades']) * 100
-                avg_return = np.mean(perf['returns']) * 100 if perf['returns'] else 0
-
                 strategy_data.append({
                     'Strategy': strategy,
                     'P&L': perf['pnl'],
                     'Trades': perf['trades'],
-                    'Win %': win_rate,
-                    'Avg Return': avg_return
                 })
 
         if strategy_data:
@@ -814,7 +820,7 @@ else:
 
             fig = go.Figure()
 
-            colors = ['#16A34A' if x > 0 else '#DC2626' for x in strategy_df['P&L']]
+            colors = ['#00FF41' if x > 0 else '#FF3B30' for x in strategy_df['P&L']]
 
             fig.add_trace(go.Bar(
                 x=strategy_df['Strategy'],
@@ -828,65 +834,54 @@ else:
             fig.update_layout(
                 xaxis_title="",
                 yaxis_title="P&L ($)",
-                height=450,
+                height=400,
                 showlegend=False,
-                plot_bgcolor='#FFFFFF',
-                paper_bgcolor='#FFFFFF',
-                font=dict(family='Roboto Mono, monospace', size=11),
+                plot_bgcolor='#0A0E27',
+                paper_bgcolor='#0A0E27',
+                font=dict(family='Courier New, monospace', size=9, color='#E8EAED'),
                 margin=dict(l=0, r=0, t=10, b=0)
             )
 
             st.plotly_chart(fig, use_container_width=True, key="strategy_chart")
 
-            st.dataframe(
-                strategy_df[['Strategy', 'Trades', 'Win %', 'P&L']].style.format({
-                    'Win %': '{:.1f}%',
-                    'P&L': '${:,.0f}'
-                }),
-                use_container_width=True,
-                hide_index=True
-            )
+    with main_col3:
+        st.subheader("STOCK PERFORMANCE")
+
+        # Sort stocks by total P&L
+        sorted_stocks = sorted(
+            st.session_state.stock_performance.items(),
+            key=lambda x: x[1]['total_pnl'],
+            reverse=True
+        )
+
+        if sorted_stocks:
+            for symbol, perf in sorted_stocks[:10]:  # Top 10
+                pnl = perf['total_pnl']
+                trades = perf['trade_count']
+                position = perf['position']
+
+                pnl_class = "positive" if pnl > 0 else "negative"
+                card_class = "stock-card" if pnl > 0 else "stock-card negative"
+
+                st.markdown(f'''
+                <div class="{card_class}">
+                    <div class="stock-ticker">{symbol}</div>
+                    <div class="stock-pnl {pnl_class}">${pnl:+,.2f}</div>
+                    <div style="font-size: 0.75rem; color: #9AA0A6; margin-top: 4px;">
+                        TRADES: {trades} | POS: {position}
+                    </div>
+                </div>
+                ''', unsafe_allow_html=True)
+        else:
+            st.info("No stock data yet")
 
     st.markdown("---")
-
-    # Portfolio heatmap
-    with st.expander("Portfolio Heatmap", expanded=False):
-        if len(st.session_state.positions) > 0:
-            heatmap_data = []
-            for symbol, pos in st.session_state.positions.items():
-                value = pos['quantity'] * pos['current_price']
-                cost = pos['quantity'] * pos['avg_price']
-                pnl_pct = ((value - cost) / cost) * 100 if cost > 0 else 0
-
-                heatmap_data.append({
-                    'Symbol': symbol,
-                    'Value': value,
-                    'P&L %': pnl_pct
-                })
-
-            heatmap_df = pd.DataFrame(heatmap_data)
-
-            fig = px.treemap(
-                heatmap_df,
-                path=['Symbol'],
-                values='Value',
-                color='P&L %',
-                color_continuous_scale=['#DC2626', '#CA8A04', '#16A34A'],
-                color_continuous_midpoint=0,
-                hover_data={'Value': ':$,.0f', 'P&L %': ':.2f'}
-            )
-
-            fig.update_layout(height=400, margin=dict(l=0, r=0, t=0, b=0))
-
-            st.plotly_chart(fig, use_container_width=True, key="heatmap")
-        else:
-            st.info("No positions to display")
 
     # Data tables
     table_col1, table_col2 = st.columns(2)
 
     with table_col1:
-        st.subheader("Open Positions")
+        st.subheader("OPEN POSITIONS")
 
         if len(st.session_state.positions) > 0:
             pos_data = []
@@ -897,57 +892,37 @@ else:
                 unrealized_pnl_pct = (unrealized_pnl / cost_basis) * 100 if cost_basis > 0 else 0
 
                 pos_data.append({
-                    'Symbol': symbol,
-                    'Qty': pos['quantity'],
-                    'Avg': f"${pos['avg_price']:.2f}",
-                    'Current': f"${pos['current_price']:.2f}",
-                    'Value': f"${current_value:,.0f}",
-                    'P&L': unrealized_pnl,
+                    'SYMBOL': symbol,
+                    'QTY': pos['quantity'],
+                    'AVG': f"${pos['avg_price']:.2f}",
+                    'CURRENT': f"${pos['current_price']:.2f}",
+                    'VALUE': f"${current_value:,.0f}",
+                    'P&L': f"${unrealized_pnl:+,.0f}",
                     'P&L %': f"{unrealized_pnl_pct:+.2f}%"
                 })
 
             pos_df = pd.DataFrame(pos_data)
-
-            def highlight_pnl(row):
-                pnl = row['P&L']
-                color = '#D1FAE5' if pnl > 0 else '#FEE2E2' if pnl < 0 else ''
-                return ['background-color: ' + color] * len(row)
-
-            styled_pos = pos_df.style.apply(highlight_pnl, axis=1).format({
-                'P&L': '${:,.0f}'
-            })
-
-            st.dataframe(styled_pos, use_container_width=True, hide_index=True, key="positions_table")
+            st.dataframe(pos_df, use_container_width=True, hide_index=True, key="positions_table")
         else:
             st.info("No open positions")
 
     with table_col2:
-        st.subheader("Recent Trades")
+        st.subheader("RECENT TRADES")
 
         if len(st.session_state.trades) > 0:
             recent = pd.DataFrame(st.session_state.trades).tail(10)
-            recent['Time'] = pd.to_datetime(recent['timestamp']).dt.strftime('%H:%M:%S')
+            recent['TIME'] = pd.to_datetime(recent['timestamp']).dt.strftime('%H:%M:%S')
 
-            trade_display = recent[['Time', 'symbol', 'side', 'quantity', 'price', 'strategy', 'pnl']].copy()
-            trade_display.columns = ['Time', 'Symbol', 'Side', 'Qty', 'Price', 'Strategy', 'P&L']
-            trade_display['Price'] = trade_display['Price'].apply(lambda x: f"${x:.2f}")
-            trade_display['P&L'] = trade_display['P&L'].apply(lambda x: f"${x:,.0f}")
+            trade_display = recent[['TIME', 'symbol', 'side', 'quantity', 'price', 'pnl']].copy()
+            trade_display.columns = ['TIME', 'SYMBOL', 'SIDE', 'QTY', 'PRICE', 'P&L']
+            trade_display['PRICE'] = trade_display['PRICE'].apply(lambda x: f"${x:.2f}")
+            trade_display['P&L'] = trade_display['P&L'].apply(lambda x: f"${x:+,.0f}")
 
-            def color_side(row):
-                colors = [''] * len(row)
-                if row['Side'] == 'BUY':
-                    colors[2] = 'color: #16A34A; font-weight: bold'
-                else:
-                    colors[2] = 'color: #DC2626; font-weight: bold'
-                return colors
-
-            styled_trades = trade_display.style.apply(color_side, axis=1)
-
-            st.dataframe(styled_trades, use_container_width=True, hide_index=True, key="trades_table")
+            st.dataframe(trade_display, use_container_width=True, hide_index=True, key="trades_table")
 
             csv = pd.DataFrame(st.session_state.trades).to_csv(index=False)
             st.download_button(
-                "Download Full History",
+                "DOWNLOAD HISTORY",
                 csv,
                 f"trades_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                 "text/csv",
@@ -956,26 +931,6 @@ else:
         else:
             st.info("No trades yet")
 
-    # Advanced metrics
-    with st.expander("Advanced Metrics", expanded=False):
-        adv_col1, adv_col2, adv_col3, adv_col4 = st.columns(4)
-
-        with adv_col1:
-            st.metric("Avg Win", f"${metrics['avg_win']:,.0f}")
-            st.metric("Best Trade", f"${metrics['best_trade']:,.0f}")
-
-        with adv_col2:
-            st.metric("Avg Loss", f"${metrics['avg_loss']:,.0f}")
-            st.metric("Worst Trade", f"${metrics['worst_trade']:,.0f}")
-
-        with adv_col3:
-            st.metric("Avg Trade", f"${metrics['avg_trade']:,.0f}")
-            st.metric("Profit Factor", f"{metrics['profit_factor']:.2f}")
-
-        with adv_col4:
-            st.metric("Win Streak", metrics['consecutive_wins'])
-            st.metric("Loss Streak", metrics['consecutive_losses'])
-
     # Auto-refresh
     if st.session_state.bot_running:
         time.sleep(trade_interval)
@@ -983,26 +938,16 @@ else:
 
 # Footer
 st.markdown("---")
-st.markdown(f"""
-<div style="text-align: center; padding: 2.5rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; margin-top: 2rem;">
-    <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.8rem; color: #FF6600;">
+st.markdown("""
+<div style="text-align: center; padding: 2rem; font-family: 'Courier New', monospace; color: #9AA0A6;">
+    <div style="font-size: 1.1rem; font-weight: 700; color: #FF9500; letter-spacing: 2px; margin-bottom: 0.5rem;">
         QUANTEDGE PRO
-    </p>
-    <p style="margin-bottom: 1.5rem; font-size: 0.95rem; color: #64748B;">
-        Algorithmic Trading Platform
-    </p>
-    <div style="margin: 1.5rem 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;">
-        <span class="feature-pill">100% Paper Trading</span>
-        <span class="feature-pill">Risk-Free Testing</span>
-        <span class="feature-pill">Real-Time Analytics</span>
-        <span class="feature-pill">Multi-Strategy</span>
-        <span class="feature-pill">Advanced Metrics</span>
     </div>
-    <p style="font-size: 0.85rem; margin-top: 1.5rem; color: #64748B;">
-        Demo uses simulated data. For educational purposes only. Trading involves substantial risk.
-    </p>
-    <p style="font-size: 0.75rem; margin-top: 0.8rem; color: #94A3B8;">
-        Powered by Streamlit
-    </p>
+    <div style="font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 1px;">
+        ALGORITHMIC TRADING PLATFORM
+    </div>
+    <div style="font-size: 0.75rem; line-height: 1.6;">
+        SIMULATED DATA | EDUCATIONAL USE ONLY | SUBSTANTIAL RISK WARNING
+    </div>
 </div>
 """, unsafe_allow_html=True)
