@@ -19,7 +19,6 @@ import plotly.graph_objects as go
 import plotly.express as px
 from typing import Dict, List
 import time
-from streamlit_autorefresh import st_autorefresh
 
 # Page config
 st.set_page_config(
@@ -41,32 +40,41 @@ st.markdown("""
     footer {visibility: hidden;}
     .stDeployButton {display:none;}
 
-    /* NUCLEAR: Remove ALL animations/transitions */
-    *, *::before, *::after {
+    /* CRITICAL: Remove Streamlit's default animations */
+    * {
         transition: none !important;
         animation: none !important;
+        -webkit-font-smoothing: antialiased !important;
     }
 
-    /* Prevent flash on rerun */
-    .element-container {
-        will-change: auto !important;
+    /* Hide loading indicators that cause flash */
+    [data-testid="stStatusWidget"],
+    .stSpinner {
+        display: none !important;
+        visibility: hidden !important;
     }
 
-    /* Force opacity to prevent flickering */
-    .stApp {
-        opacity: 1 !important;
+    /* Prevent white flash by forcing dark everywhere */
+    iframe,
+    ::-webkit-scrollbar,
+    ::-webkit-scrollbar-track,
+    body::before {
+        background-color: #0A0E27 !important;
     }
 
-    /* Prevent element flickering */
+    /* Prevent layout shift during rerun */
     .main .block-container {
         padding-top: 1rem;
         padding-bottom: 0rem;
-        animation: none !important;
+        min-height: 100vh;
     }
 
-    /* Smooth opacity for content */
-    [data-testid="stVerticalBlock"] {
-        opacity: 1 !important;
+    /* Force hardware acceleration for smoother repaints */
+    .main,
+    .stApp,
+    [data-testid="stAppViewContainer"] {
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
     }
 
     /* ============================================================
@@ -730,8 +738,10 @@ with st.sidebar:
     speed = st.select_slider(
         "Update Frequency",
         options=["Slow (5s)", "Normal (3s)", "Fast (1s)", "Maximum (0.5s)"],
-        value="Normal (3s)"
+        value="Slow (5s)"
     )
+
+    st.caption("⚠️ Faster speeds = more visible flash (Streamlit limitation)")
 
     speed_map = {
         "Slow (5s)": 5,
@@ -1050,9 +1060,10 @@ else:
             st.metric("WIN STREAK", metrics['consecutive_wins'])
             st.metric("LOSS STREAK", metrics['consecutive_losses'])
 
-    # AUTO-REFRESH - JavaScript based (minimal flash)
+    # AUTO-REFRESH - Controlled timing to minimize flash
     if st.session_state.bot_running:
-        st_autorefresh(interval=int(trade_interval * 1000), key="data_refresh")
+        time.sleep(trade_interval)
+        st.rerun()
 
 # ============================================================
 # FOOTER
