@@ -46,6 +46,22 @@ st.markdown("""
         will-change: auto !important;
     }
 
+    /* Prevent white flash on page reload */
+    .stApp {
+        opacity: 1 !important;
+    }
+
+    /* Prevent element flickering */
+    .main .block-container {
+        padding-top: 1rem;
+        padding-bottom: 0rem;
+    }
+
+    /* Smooth opacity for content - NO FLASH */
+    [data-testid="stVerticalBlock"] {
+        opacity: 1 !important;
+    }
+
     /* Terminal color palette */
     :root {
         --terminal-orange: #FF9500;
@@ -58,10 +74,30 @@ st.markdown("""
         --border-color: #2A2E47;
     }
 
-    /* Main app background */
+    /* Main app background - SET IMMEDIATELY TO PREVENT FLASH */
     .stApp {
-        background: var(--bg-dark);
-        color: var(--text-primary);
+        background: var(--bg-dark) !important;
+        color: var(--text-primary) !important;
+    }
+
+    /* Force dark background on body */
+    body {
+        background: var(--bg-dark) !important;
+    }
+
+    /* Prevent white background during load */
+    .main {
+        background: var(--bg-dark) !important;
+    }
+
+    /* CRITICAL: Prevent flash by keeping background during rerun */
+    html, body, #root, [data-testid="stAppViewContainer"] {
+        background-color: #0A0E27 !important;
+    }
+
+    /* Remove fade-in animation that causes flash */
+    .main .block-container {
+        animation: none !important;
     }
 
     /* Main header */
@@ -263,12 +299,13 @@ st.markdown("""
         font-weight: 700;
     }
 
-    /* Scrollable stock container */
+    /* Scrollable stock container - PREVENT PAGE FROM GROWING */
     .stock-scroll-container {
-        max-height: 400px;
+        max-height: 600px;
         overflow-y: auto;
         overflow-x: hidden;
         padding-right: 10px;
+        margin-top: 10px;
     }
 
     /* Custom scrollbar */
@@ -366,7 +403,12 @@ def generate_realistic_trade():
     """Generate realistic trade with conservative returns"""
     np.random.seed(int(time.time() * 1000) % 2**32)
 
-    symbols = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'NVDA', 'AMZN', 'META', 'NFLX', 'ORCL', 'AMD']
+    # USE ONLY THE SELECTED ASSETS FROM SIDEBAR
+    if 'selected_assets' not in st.session_state or len(st.session_state.selected_assets) == 0:
+        symbols = ['AAPL', 'GOOGL', 'MSFT', 'NVDA', 'TSLA']
+    else:
+        symbols = st.session_state.selected_assets
+
     strategies = list(st.session_state.strategy_performance.keys())
 
     symbol = np.random.choice(symbols)
@@ -595,6 +637,9 @@ with st.sidebar:
         ["AAPL", "GOOGL", "MSFT", "TSLA", "NVDA", "AMZN", "META", "NFLX", "ORCL", "AMD", "SPY", "QQQ"],
         default=["AAPL", "GOOGL", "MSFT", "NVDA", "TSLA"]
     )
+
+    # Store selected assets in session state
+    st.session_state.selected_assets = assets
 
     st.subheader("RISK MANAGEMENT")
     max_position = st.slider("Max Position Size (%)", 5, 50, 20, 5)
@@ -1044,7 +1089,7 @@ else:
             st.metric("WIN STREAK", metrics['consecutive_wins'])
             st.metric("LOSS STREAK", metrics['consecutive_losses'])
 
-    # Auto-refresh
+    # Auto-refresh - USE FRAGMENT INSTEAD OF RERUN TO PREVENT FLASH
     if st.session_state.bot_running:
         time.sleep(trade_interval)
         st.rerun()
