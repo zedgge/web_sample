@@ -1,0 +1,12 @@
+# Minimal Requirements for Web Demo
+# Only what's needed for Streamlit deployment
+
+# Core
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Web Framework
+streamlit>=1.26.0
+
+# Visualization
+plotly>=5.16.0
