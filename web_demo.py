@@ -266,7 +266,7 @@ def calculate_advanced_metrics():
 # ============================================================
 
 st.markdown('<div class="main-header">QuantEdge Pro</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Algorithmic Trading Terminal v3.2-GHOST</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Algorithmic Trading Terminal - Free Demo</div>', unsafe_allow_html=True)
 
 # Status indicator
 if st.session_state.bot_running:
