@@ -697,7 +697,7 @@ def calculate_advanced_metrics():
 # ============================================================
 
 st.markdown('<div class="main-header">QuantEdge Pro</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Algorithmic Trading Terminal v2.0</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Algorithmic Trading Terminal v2.1-FIXED</div>', unsafe_allow_html=True)
 
 # Status indicator
 if st.session_state.bot_running:
@@ -717,36 +717,40 @@ st.markdown("---")
 # ============================================================
 
 with st.sidebar:
-    st.markdown("### ⚙️ Configuration")
+    st.markdown("### Configuration")
 
-    st.markdown("#### 💰 Capital")
+    st.markdown("**Capital**")
     initial_capital = st.number_input(
-        "Starting Capital",
+        "Starting Capital ($)",
         min_value=10000,
-        max_value=500000000,  # 500 MILLION for shits and giggles!
+        max_value=500000000,
         value=100000,
         step=10000,
-        format="%d",
-        help="Choose your starting capital (up to $500M!)"
+        format="%d"
     )
 
-    st.markdown("#### 📊 Trading Universe")
+    st.markdown("**Trading Universe**")
     assets = st.multiselect(
         "Select Assets",
         ["AAPL", "GOOGL", "MSFT", "TSLA", "NVDA", "AMZN", "META", "NFLX", "ORCL", "AMD", "SPY", "QQQ"],
-        default=["AAPL", "GOOGL", "MSFT", "NVDA", "TSLA"],
-        help="Choose which stocks to trade"
+        default=["AAPL", "GOOGL", "MSFT", "NVDA", "TSLA"]
     )
     st.session_state.selected_assets = assets
 
-    st.markdown("#### 🎯 Risk Management")
+    st.markdown("**Strategy**")
+    strategy_select = st.selectbox(
+        "Trading Strategy",
+        ["Momentum", "RSI Reversal", "MA Crossover", "Mean Reversion"],
+        index=0
+    )
+
+    st.markdown("**Risk Management**")
     max_position = st.slider(
-        "Max Position Size (%)",
+        "Max Position (%)",
         min_value=5,
         max_value=50,
         value=20,
-        step=5,
-        help="Maximum percentage of capital per position"
+        step=5
     )
 
     stop_loss = st.slider(
@@ -754,8 +758,7 @@ with st.sidebar:
         min_value=1,
         max_value=25,
         value=10,
-        step=1,
-        help="Automatic sell if position loses this %"
+        step=1
     )
 
     take_profit = st.slider(
@@ -763,19 +766,15 @@ with st.sidebar:
         min_value=5,
         max_value=100,
         value=25,
-        step=5,
-        help="Automatic sell if position gains this %"
+        step=5
     )
 
-    st.markdown("#### ⚡ Update Speed")
+    st.markdown("**Update Speed**")
     speed = st.select_slider(
-        "Refresh Frequency",
+        "Refresh Rate",
         options=["Slow (5s)", "Normal (3s)", "Fast (1s)", "Maximum (0.5s)"],
-        value="Slow (5s)",
-        help="How often the dashboard updates"
+        value="Slow (5s)"
     )
-
-    st.caption("💡 Slower speeds reduce page flashing")
 
     speed_map = {
         "Slow (5s)": 5,
@@ -787,23 +786,21 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # Control buttons - HORIZONTAL LAYOUT
-    st.markdown("#### 🎮 Controls")
+    # Control buttons
+    st.markdown("**Controls**")
     col1, col2 = st.columns(2)
 
     with col1:
         start_clicked = st.button(
-            "▶ Start",
+            "START",
             use_container_width=True,
-            type="primary",
-            help="Start paper trading bot"
+            type="primary"
         )
 
     with col2:
         stop_clicked = st.button(
-            "⏸ Stop",
-            use_container_width=True,
-            help="Pause trading bot"
+            "STOP",
+            use_container_width=True
         )
 
     if start_clicked:
@@ -827,33 +824,18 @@ with st.sidebar:
     st.markdown("---")
 
     # Status
+    st.markdown("**Status**")
     if st.session_state.bot_running:
-        st.markdown('<div class="status-badge status-running"><span class="live-pulse"></span> Running</div>', unsafe_allow_html=True)
-        st.caption(f"🕐 Last update: {st.session_state.last_update.strftime('%H:%M:%S')}")
+        st.success("RUNNING")
+        st.caption(f"Last update: {st.session_state.last_update.strftime('%H:%M:%S')}")
     else:
-        st.markdown('<div class="status-badge status-stopped">⏸ Stopped</div>', unsafe_allow_html=True)
+        st.warning("STOPPED")
 
     # Quick stats
     if len(st.session_state.trades) > 0:
-        st.markdown("---")
-        st.markdown("#### 📈 Quick Stats")
-
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown(f"""
-            <div class="info-card">
-                <h4>Trades</h4>
-                <p>{st.session_state.trade_count}</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with col2:
-            st.markdown(f"""
-            <div class="info-card">
-                <h4>Positions</h4>
-                <p>{len(st.session_state.positions)}</p>
-            </div>
-            """, unsafe_allow_html=True)
+        st.markdown("**Quick Stats**")
+        st.metric("Trades", st.session_state.trade_count)
+        st.metric("Positions", len(st.session_state.positions))
 
 # ============================================================
 # MAIN CONTENT
@@ -861,9 +843,9 @@ with st.sidebar:
 
 if not st.session_state.bot_running and len(st.session_state.trades) == 0:
     # DEMO MODE
-    st.info("👈 Configure your trading terminal in the sidebar and click **Start** to begin paper trading")
+    st.info("Configure your trading terminal in the sidebar and click **START** to begin paper trading")
 
-    st.markdown("### 📊 Historical Backtest Performance")
+    st.markdown("### Historical Backtest Performance")
 
     dates = pd.date_range(start='2025-01-01', end='2025-12-27', freq='D')
     fig = go.Figure()
@@ -897,7 +879,7 @@ if not st.session_state.bot_running and len(st.session_state.trades) == 0:
 
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("### 📈 Sample Metrics")
+    st.markdown("### Sample Metrics")
     m1, m2, m3, m4, m5, m6 = st.columns(6)
     with m1:
         st.metric("Return", "+18.7%", "18.7%")
@@ -920,7 +902,7 @@ else:
     metrics = calculate_advanced_metrics()
 
     # Performance Metrics
-    st.markdown("### 📊 Performance Dashboard")
+    st.markdown("### Performance Dashboard")
     p1, p2, p3, p4, p5, p6 = st.columns(6)
 
     with p1:
@@ -959,7 +941,7 @@ else:
 
     with main_col:
         # Equity Curve
-        st.markdown("### 📈 Equity Curve")
+        st.markdown("### Equity Curve")
         if len(st.session_state.equity_curve) > 0:
             equity_df = pd.DataFrame(st.session_state.equity_curve)
             fig = go.Figure()
@@ -1033,7 +1015,7 @@ else:
 
     # Stock Performance
     with stock_col:
-        st.markdown("### 💼 Positions")
+        st.markdown("### Positions P&L")
         if len(st.session_state.positions) > 0:
             stock_performance = []
             for symbol, pos in st.session_state.positions.items():
@@ -1045,27 +1027,15 @@ else:
 
             sorted_stocks = sorted(stock_performance, key=lambda x: x[1], reverse=True)
 
-            stock_html = ['<div class="stock-scroll-container">']
+            # Use native Streamlit components instead of HTML
             for symbol, pnl, pnl_pct in sorted_stocks:
-                color_class = "stock-positive" if pnl > 0 else ("stock-negative" if pnl < 0 else "stock-neutral")
-                prefix = "▲" if pnl > 0 else ("▼" if pnl < 0 else "━")
-
-                stock_html.append(f'''
-                <div class="stock-card">
-                    <div>
-                        <div class="stock-symbol {color_class}">{prefix} {symbol}</div>
-                        <div style="font-size: 0.75rem; color: #9CA3AF; margin-top: 0.25rem;">
-                            {pnl_pct:+.2f}%
-                        </div>
-                    </div>
-                    <div class="{color_class}" style="font-size: 1.1rem; font-weight: 700;">
-                        ${pnl:+,.0f}
-                    </div>
-                </div>
-                ''')
-            stock_html.append('</div>')
-
-            st.markdown(''.join(stock_html), unsafe_allow_html=True)
+                delta_color = "normal" if pnl >= 0 else "inverse"
+                st.metric(
+                    label=symbol,
+                    value=f"${pnl:+,.0f}",
+                    delta=f"{pnl_pct:+.2f}%",
+                    delta_color=delta_color
+                )
         else:
             st.info("No open positions")
 
@@ -1075,7 +1045,7 @@ else:
     table_col1, table_col2 = st.columns(2)
 
     with table_col1:
-        st.markdown("### 📋 Open Positions")
+        st.markdown("### Open Positions")
         if len(st.session_state.positions) > 0:
             pos_data = []
             for symbol, pos in st.session_state.positions.items():
@@ -1100,7 +1070,7 @@ else:
             st.info("No open positions")
 
     with table_col2:
-        st.markdown("### 📜 Recent Trades")
+        st.markdown("### Recent Trades")
         if len(st.session_state.trades) > 0:
             recent = pd.DataFrame(st.session_state.trades).tail(10)
             recent['Time'] = pd.to_datetime(recent['timestamp']).dt.strftime('%H:%M:%S')
@@ -1112,7 +1082,7 @@ else:
 
             csv = pd.DataFrame(st.session_state.trades).to_csv(index=False)
             st.download_button(
-                "📥 Download History",
+                "Download History",
                 csv,
                 f"trades_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                 "text/csv",
