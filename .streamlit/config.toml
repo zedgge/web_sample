@@ -16,3 +16,7 @@ gatherUsageStats = false
 
 [runner]
 fastReruns = true
+
+[ui]
+hideTopBar = true
+hideSidebarNav = true
