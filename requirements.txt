@@ -10,3 +10,6 @@ streamlit>=1.26.0
 
 # Visualization
 plotly>=5.16.0
+
+# Auto-refresh component
+streamlit-autorefresh>=1.0.1
