@@ -34,10 +34,38 @@ st.markdown("""
        ANTI-FLASH & PERFORMANCE
        ============================================================ */
 
-    /* Hide Streamlit branding */
+    /* Hide ALL Streamlit branding and default UI */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     .stDeployButton {display:none;}
+    header {visibility: hidden;}
+    [data-testid="stToolbar"] {display: none;}
+    [data-testid="stDecoration"] {display: none;}
+    [data-testid="stStatusWidget"] {display: none;}
+
+    /* Hide sidebar collapse button completely */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+
+    [data-testid="baseButton-header"] {
+        display: none !important;
+    }
+
+    /* Hide ALL potential emoji rendering issues */
+    button[title*="sidebar"] {
+        display: none !important;
+    }
+
+    /* Hide bottom status bar emojis */
+    .reportview-container .main footer,
+    .reportview-container footer,
+    [data-testid="stBottom"],
+    .stApp > footer,
+    .element-container:has(div[data-testid="stCaptionContainer"]) ~ footer {
+        display: none !important;
+        visibility: hidden !important;
+    }
 
     /* Remove animations that cause flash */
     * {
@@ -203,9 +231,13 @@ st.markdown("""
        ============================================================ */
 
     [data-testid="stSidebar"] {
-        background: var(--bg-secondary) !important;
+        background: var(--bg-primary) !important;
         border-right: 1px solid var(--border) !important;
         padding: 2rem 1.5rem !important;
+    }
+
+    [data-testid="stSidebar"] > div:first-child {
+        background: var(--bg-primary) !important;
     }
 
     [data-testid="stSidebar"] h1,
@@ -697,7 +729,7 @@ def calculate_advanced_metrics():
 # ============================================================
 
 st.markdown('<div class="main-header">QuantEdge Pro</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Algorithmic Trading Terminal v2.1-FIXED</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Algorithmic Trading Terminal v2.2-CLEAN</div>', unsafe_allow_html=True)
 
 # Status indicator
 if st.session_state.bot_running:
@@ -1117,17 +1149,4 @@ else:
 # ============================================================
 
 st.markdown("---")
-st.markdown("""
-<div style="text-align: center; padding: 2.5rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; margin-top: 2rem;">
-    <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-        QuantEdge Pro
-    </div>
-    <div style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-secondary); letter-spacing: 0.1em;">
-        ALGORITHMIC TRADING TERMINAL
-    </div>
-    <div style="font-size: 0.8rem; margin-top: 1.5rem; color: var(--text-secondary); line-height: 1.6;">
-        Paper trading simulation for educational purposes only.<br>
-        Trading involves substantial risk of loss. Past performance does not guarantee future results.
-    </div>
-</div>
-""", unsafe_allow_html=True)
+st.caption("Paper trading simulation for educational purposes only. Not investment advice.")
