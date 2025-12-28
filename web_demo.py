@@ -30,10 +30,29 @@ st.set_page_config(
 # Minimal CSS - Let config.toml handle theming
 st.markdown("""
 <style>
-    /* Hide branding only */
+    /* Hide ALL Streamlit branding and GitHub link */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     .stDeployButton {display:none;}
+    header {visibility: hidden;}
+
+    /* Hide GitHub link in top right */
+    [data-testid="stToolbar"] {display: none;}
+    .viewerBadge_link__qRIco {display: none;}
+    .viewerBadge_container__r5tak {display: none;}
+    iframe[src*="github"] {display: none;}
+    a[href*="github.com"] {display: none !important;}
+
+    /* Hide fullscreen button completely */
+    [data-testid="StyledFullScreenButton"] {display: none !important;}
+    button[title="View fullscreen"] {display: none !important;}
+
+    /* Hide GitHub link if fullscreen is triggered */
+    [data-testid="StyledFullScreenButton"] ~ div {display: none;}
+
+    /* Nuclear option - hide ALL fullscreen elements */
+    iframe[title*="streamlit"] {pointer-events: none;}
+    .fullScreenFrame {display: none !important;}
 
     /* Clean header styling */
     .main-header {
@@ -247,7 +266,7 @@ def calculate_advanced_metrics():
 # ============================================================
 
 st.markdown('<div class="main-header">QuantEdge Pro</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Algorithmic Trading Terminal v3.0-NATIVE</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Algorithmic Trading Terminal v3.2-GHOST</div>', unsafe_allow_html=True)
 
 # Status indicator
 if st.session_state.bot_running:
